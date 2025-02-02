@@ -1,3 +1,5 @@
+#![feature(async_closure)]
+
 mod web;
 
 #[tokio::main]
