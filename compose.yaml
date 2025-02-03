@@ -1,0 +1,47 @@
+services:
+  grafana:
+    image: grafana/grafana:11.5.0
+    networks: ['net']
+    ports: ['3000:3000']
+    environment:
+      - GF_PATHS_PROVISIONING=/etc/grafana/provisioning
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+    entrypoint:
+      - sh
+      - -euc
+      - |
+        mkdir -p /etc/grafana/provisioning/datasources
+        cat <<EOF > /etc/grafana/provisioning/datasources/ds.yaml
+        apiVersion: 1
+        datasources:
+          - name: Prometheus
+            type: prometheus
+            orgId: 1
+            url: http://prometheus:9090
+            basicAuth: false
+            isDefault: true
+            version: 1
+            editable: false
+        EOF
+        /run.sh
+  prometheus:
+    image: prom/prometheus:v3.1.0
+    networks: ['net']
+    ports: ['9090:9090']
+    command: ['--config.file=/etc/prometheus/prometheus.yml', '--storage.tsdb.path=/prometheus', '--web.enable-remote-write-receiver']
+  alloy:
+    image: grafana/alloy:v1.6.1
+    networks: ['net']
+    ports: ['12345:12345']
+    volumes:
+      - type: bind
+        source: ./config.alloy
+        target: /etc/alloy/config.alloy
+    entrypoint: ['/bin/alloy', 'run', '--storage.path=/var/lib/alloy/data', '--server.http.listen-addr=0.0.0.0:12345', '/etc/alloy/config.alloy']
+  app:
+    build: .
+    networks: ['net']
+    ports: ['8080:8080']
+networks:
+  net:
