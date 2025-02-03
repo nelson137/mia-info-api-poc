@@ -39,6 +39,8 @@ services:
         source: ./config.alloy
         target: /etc/alloy/config.alloy
     entrypoint: ['/bin/alloy', 'run', '--storage.path=/var/lib/alloy/data', '--server.http.listen-addr=0.0.0.0:12345', '/etc/alloy/config.alloy']
+  # TODO: add `develop` section
+  # https://docs.docker.com/compose/gettingstarted/#step-4-edit-the-compose-file-to-use-compose-watch
   app:
     build: .
     networks: ['net']
