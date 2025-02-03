@@ -11,6 +11,9 @@ edition = "2024"
 rust-version = "1.85"
 resolver = "3"
 
+[features]
+listen_public = []
+
 [dependencies]
 axum = "0.8"
 axum-prometheus = "0.8"
