@@ -1,8 +1,8 @@
 use axum::{Router, routing::get};
 use axum_prometheus::PrometheusMetricLayerBuilder;
 
-mod routes_health;
-mod routes_hello;
+mod handler;
+mod route;
 
 pub(crate) fn router() -> Router {
     let (prometheus_layer, metric_handle) = PrometheusMetricLayerBuilder::new()
@@ -12,8 +12,8 @@ pub(crate) fn router() -> Router {
         .with_default_metrics()
         .build_pair();
     Router::new()
-        .merge(routes_health::routes())
-        .merge(routes_hello::routes())
+        .merge(route::health_routes::routes())
+        .merge(route::hello_routes::routes())
         .route("/metrics", get(async move || metric_handle.render()))
         .layer(prometheus_layer)
 }
