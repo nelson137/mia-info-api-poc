@@ -21,5 +21,7 @@ serde = { version = "1.0", features = ["derive"]}
 tokio = { workspace = true }
 
 [dev-dependencies]
+ab_glyph = "*"
 anyhow = "1.0"
+imageproc = "0.25"
 magick_rust = "1.0"
