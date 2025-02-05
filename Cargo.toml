@@ -2,6 +2,7 @@
 members = ["crates/*"]
 
 [workspace.dependencies]
+anyhow = "1.0"
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
 
 [package]
@@ -15,13 +16,15 @@ resolver = "3"
 listen_public = []
 
 [dependencies]
+ab_glyph = "*"
+anyhow = { workspace = true }
 axum = "0.8"
 axum-prometheus = "0.8"
+imageproc = "0.25"
 serde = { version = "1.0", features = ["derive"]}
 tokio = { workspace = true }
 
 [dev-dependencies]
-ab_glyph = "*"
-anyhow = "1.0"
-imageproc = "0.25"
 magick_rust = "1.0"
+mockall = "0.13"
+rand = "0.9"

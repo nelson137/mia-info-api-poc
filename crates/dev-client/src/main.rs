@@ -13,13 +13,13 @@ async fn main() -> Result<()> {
         tokio::time::sleep(std::time::Duration::from_millis(100)).await;
     }
 
+    client.do_get("/ready").await?.print().await?;
+
     client
-        .do_get("/hello?name=Prometheus")
+        .do_get("/deployment/moa-dev/myqueue-contacts/badge")
         .await?
         .print()
         .await?;
-
-    client.do_get("/hello2/Prometheus2").await?.print().await?;
 
     Ok(())
 }
