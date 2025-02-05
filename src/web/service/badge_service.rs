@@ -1,10 +1,10 @@
-use std::sync::Arc;
+use std::{io::Cursor, sync::Arc};
 
 use ab_glyph::FontRef;
 use anyhow::Result;
 use imageproc::{
     drawing,
-    image::{Rgba, RgbaImage},
+    image::{ImageFormat, Rgba, RgbaImage},
 };
 
 #[cfg_attr(test, mockall::automock)]
@@ -12,7 +12,7 @@ pub trait BadgeService {
     fn new() -> Result<Self>
     where
         Self: Sized;
-    fn generate_badge(&self, version: &str) -> Vec<u8>;
+    fn generate_badge(&self, version: &str) -> Result<Vec<u8>>;
 }
 
 static FONT_BYTES: &[u8] = include_bytes!("../../../examples/DejaVuSans.ttf");
@@ -28,7 +28,7 @@ impl BadgeService for ImageProcBadgeService {
         Ok(Self { font })
     }
 
-    fn generate_badge(&self, version: &str) -> Vec<u8> {
+    fn generate_badge(&self, version: &str) -> Result<Vec<u8>> {
         const FONT_SCALE: f32 = 128.0;
 
         const TEXT_MARGIN: u32 = 8;
@@ -57,6 +57,10 @@ impl BadgeService for ImageProcBadgeService {
             version,
         );
 
-        image.into_vec()
+        let mut formatted_image = Vec::<u8>::new();
+        let mut writer = Cursor::new(&mut formatted_image);
+        image.write_to(&mut writer, ImageFormat::Png)?;
+
+        Ok(formatted_image)
     }
 }

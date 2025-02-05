@@ -16,7 +16,7 @@ pub async fn badge<D: MiaDeploymentService, B: BadgeService>(
         .deployment_service
         .get_version(&namespace, &service_name);
 
-    state.badge_service.generate_badge(&version)
+    state.badge_service.generate_badge(&version).unwrap()
 }
 
 #[cfg(test)]
