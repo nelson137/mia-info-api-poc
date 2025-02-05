@@ -5,16 +5,8 @@
 # You may check the current default at
 #   https://github.com/Canop/bacon/blob/main/defaults/default-bacon.toml
 
-default_job = "check"
+default_job = "server"
 env.CARGO_TERM_COLOR = "always"
-
-[jobs.check]
-command = ["cargo", "check"]
-need_stdout = false
-
-[jobs.check-all]
-command = ["cargo", "check", "--all-targets"]
-need_stdout = false
 
 # Run clippy on the default target
 [jobs.clippy]
@@ -23,16 +15,14 @@ need_stdout = false
 
 # Run clippy on all targets
 # To disable some lints, you may change the job this way:
-#    [jobs.clippy-all]
-#    command = [
-#        "cargo", "clippy",
-#        "--all-targets",
-#    	 "--",
-#    	 "-A", "clippy::bool_to_int_with_if",
-#    	 "-A", "clippy::collapsible_if",
-#    	 "-A", "clippy::derive_partial_eq_without_eq",
-#    ]
-# need_stdout = false
+#     command = [
+#         "cargo", "clippy",
+#         "--all-targets",
+#         "--",
+#         "-A", "clippy::bool_to_int_with_if",
+#         "-A", "clippy::collapsible_if",
+#         "-A", "clippy::derive_partial_eq_without_eq",
+#     ]
 [jobs.clippy-all]
 command = ["cargo", "clippy", "--all-targets"]
 need_stdout = false
@@ -48,7 +38,7 @@ need_stdout = true
 [jobs.nextest]
 command = [
     "cargo", "nextest", "run",
-    "--hide-progress-bar", "--failure-output", "final"
+    "--cargo-quiet", "--hide-progress-bar", "--failure-output=final"
 ]
 need_stdout = true
 analyzer = "nextest"
@@ -63,17 +53,6 @@ need_stdout = false
 command = ["cargo", "doc", "--no-deps", "--open"]
 need_stdout = false
 on_success = "back" # so that we don't open the browser at each change
-
-# You can run your application and have the result displayed in bacon,
-# if it makes sense for this crate.
-[jobs.run]
-command = [
-    "cargo", "run",
-    # put launch parameters for your program behind a `--` separator
-]
-need_stdout = true
-allow_warnings = true
-background = true
 
 # Run your long-running application (eg server) and have the result displayed in bacon.
 # For programs that never stop (eg a server), `background` is set to false
@@ -132,7 +111,6 @@ watch = ["./examples/badge_imageproc.rs"]
 # Shortcuts to internal functions (scrolling, toggling, etc.)
 # should go in your personal global prefs.toml file instead.
 [keybindings]
-# alt-m = "job:my-job"
-c = "job:clippy-all" # comment this to have 'c' run clippy on only the default target
 g = "scroll-to-top"
 shift-g = "scroll-to-bottom"
+alt-d = "job:dev-client"
