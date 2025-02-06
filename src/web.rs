@@ -36,7 +36,10 @@ pub(crate) fn router() -> Result<Router> {
     let (router, api) = OpenApiRouter::with_openapi(ApiDoc::openapi())
         .merge(routes::health_routes::routes())
         .merge(routes::hello_routes::routes())
-        .merge(routes::deployment_routes::routes().with_state(state::DeploymentState::new()?))
+        .nest(
+            "/deployment",
+            routes::deployment_routes::routes().with_state(state::DeploymentState::new()?),
+        )
         .route("/metrics", get(async move || metric_handle.render()))
         .layer(prometheus_layer)
         .split_for_parts();

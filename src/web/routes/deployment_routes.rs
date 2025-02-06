@@ -12,14 +12,14 @@ use crate::web::{
 };
 
 pub fn routes() -> OpenApiRouter<DeploymentState> {
-    OpenApiRouter::new().routes(routes!(badge))
+    OpenApiRouter::new().routes(routes!(version_badge))
 }
 
 #[utoipa::path(
     get,
-    path = "/deployment/{namespace}/{service}/badge",
+    path = "/{namespace}/{service}/version/badge",
     tag = tags::MIA_DEPLOYMENT,
-    summary = "deployment version badge",
+    summary = "generate deployment version badge",
     params(
         ("namespace", Path, description = "The cluster namespace", example = "vcce-dev"),
         ("service", Path, description = "The service name", example = "memo-api"),
@@ -35,7 +35,7 @@ pub fn routes() -> OpenApiRouter<DeploymentState> {
         (status = INTERNAL_SERVER_ERROR, description = "Error."),
     ),
 )]
-pub async fn badge<D: MiaDeploymentService, B: BadgeService>(
+pub async fn version_badge<D: MiaDeploymentService, B: BadgeService>(
     State(state): State<DeploymentState<D, B>>,
     Path((namespace, service_name)): Path<(String, String)>,
 ) -> Result<impl IntoResponse, StatusCode> {
@@ -106,7 +106,7 @@ mod tests {
             deployment_service,
             badge_service,
         };
-        let actual_badge = badge(State(state), Path((namespace, service_name)))
+        let actual_badge = version_badge(State(state), Path((namespace, service_name)))
             .await
             .read_response_as_bytes()
             .await;

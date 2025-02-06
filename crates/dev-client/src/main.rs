@@ -139,7 +139,7 @@ fn main() -> Result<()> {
     }
 
     client
-        .get("/deployment/moa-dev/myqueue-contacts/badge")?
+        .get("/deployment/moa-dev/myqueue-contacts/version/badge")?
         .print();
 
     Ok(())
