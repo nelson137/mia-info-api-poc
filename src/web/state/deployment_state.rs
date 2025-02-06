@@ -1,11 +1,10 @@
 use anyhow::Result;
-use serde::Deserialize;
 
 use crate::web::service::{
     BadgeService, ImageProcBadgeService, K8DeploymentService, MiaDeploymentService,
 };
 
-#[derive(Clone, Debug, Deserialize)]
+#[derive(Clone, Debug)]
 pub struct DeploymentState<
     MiaDeploymentSvc: MiaDeploymentService = K8DeploymentService,
     BadgeSvc: BadgeService = ImageProcBadgeService,
