@@ -7,8 +7,10 @@ use imageproc::{
     image::{ImageFormat, Rgba, RgbaImage},
 };
 
+use super::Service;
+
 #[cfg_attr(test, mockall::automock)]
-pub trait BadgeService {
+pub trait BadgeService: Service {
     fn new() -> Result<Self>
     where
         Self: Sized;

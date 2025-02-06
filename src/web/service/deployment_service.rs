@@ -1,5 +1,7 @@
+use super::Service;
+
 #[cfg_attr(test, mockall::automock)]
-pub trait MiaDeploymentService {
+pub trait MiaDeploymentService: Service {
     fn get_version(&self, namespace: &str, service_name: &str) -> String;
 }
 

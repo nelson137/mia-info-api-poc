@@ -5,11 +5,7 @@ use axum::{
 };
 use utoipa_axum::{router::OpenApiRouter, routes};
 
-use crate::web::{
-    service::{BadgeService, MiaDeploymentService},
-    state::DeploymentState,
-    tags,
-};
+use crate::web::{state::DeploymentState, tags};
 
 pub fn routes() -> OpenApiRouter<DeploymentState> {
     OpenApiRouter::new().routes(routes!(version_badge))
@@ -35,8 +31,8 @@ pub fn routes() -> OpenApiRouter<DeploymentState> {
         (status = INTERNAL_SERVER_ERROR, description = "Error."),
     ),
 )]
-pub async fn version_badge<D: MiaDeploymentService, B: BadgeService>(
-    State(state): State<DeploymentState<D, B>>,
+pub async fn version_badge(
+    State(state): State<DeploymentState>,
     Path((namespace, service_name)): Path<(String, String)>,
 ) -> Result<impl IntoResponse, StatusCode> {
     let version = state
@@ -71,25 +67,28 @@ mod tests {
     use mockall::predicate as pred;
 
     use crate::{
-        test_utils::{self as utils, ReadResponseBody},
-        web::service::{MockBadgeService, MockMiaDeploymentService},
+        test_utils::*,
+        web::{
+            service::{BadgeService, MockBadgeService, MockMiaDeploymentService},
+            state::DeploymentState,
+        },
     };
 
     use super::*;
 
     #[tokio::test]
     async fn test_badge() {
-        let namespace = utils::rand_string();
-        let service_name = utils::rand_string();
+        let namespace = rand_string();
+        let service_name = rand_string();
         let version = "7.16.1";
 
-        let mut deployment_service = MockMiaDeploymentService::new();
-        deployment_service
+        let mut deployment_svc = MockMiaDeploymentService::new();
+        deployment_svc
             .expect_get_version()
             .with(pred::always(), pred::always())
             .return_const(version);
 
-        let gen_badge_bytes = utils::rand_vec_u8();
+        let gen_badge_bytes = rand_vec_u8();
         let expected_badge = gen_badge_bytes.clone();
         let badge_service_ctx = MockBadgeService::new_context();
         badge_service_ctx.expect().returning(move || {
@@ -100,12 +99,9 @@ mod tests {
                 .return_once(move |_| Ok(gen_badge_bytes));
             Ok(svc)
         });
-        let badge_service = MockBadgeService::new().unwrap();
+        let badge_svc = MockBadgeService::new().unwrap();
 
-        let state = DeploymentState {
-            deployment_service,
-            badge_service,
-        };
+        let state = DeploymentState::from_parts(deployment_svc, badge_svc);
         let actual_badge = version_badge(State(state), Path((namespace, service_name)))
             .await
             .read_response_as_bytes()
