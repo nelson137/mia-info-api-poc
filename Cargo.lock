@@ -1291,6 +1291,7 @@ dependencies = [
  "axum-prometheus",
  "imageproc",
  "magick_rust",
+ "mime",
  "mockall",
  "rand 0.9.0",
  "serde",

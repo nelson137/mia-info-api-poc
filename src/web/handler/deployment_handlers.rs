@@ -1,6 +1,7 @@
 use axum::{
     extract::{Path, State},
-    response::IntoResponse,
+    http::{HeaderValue, StatusCode, header},
+    response::{IntoResponse, Response},
 };
 
 use crate::web::{
@@ -11,12 +12,31 @@ use crate::web::{
 pub async fn badge<D: MiaDeploymentService, B: BadgeService>(
     State(state): State<DeploymentState<D, B>>,
     Path((namespace, service_name)): Path<(String, String)>,
-) -> impl IntoResponse {
+) -> Result<impl IntoResponse, StatusCode> {
     let version = state
         .deployment_service
         .get_version(&namespace, &service_name);
 
-    state.badge_service.generate_badge(&version).unwrap()
+    match state.badge_service.generate_badge(&version) {
+        Ok(image) => Ok(PngResponse(image)),
+        Err(err) => {
+            eprintln!("Error generating badge for version {version}");
+            eprintln!("{err}");
+            Err(StatusCode::INTERNAL_SERVER_ERROR)
+        }
+    }
+}
+
+struct PngResponse(Vec<u8>);
+
+impl IntoResponse for PngResponse {
+    fn into_response(self) -> Response {
+        let content_type = (
+            header::CONTENT_TYPE,
+            HeaderValue::from_static(mime::IMAGE_PNG.as_ref()),
+        );
+        ([content_type], self.0).into_response()
+    }
 }
 
 #[cfg(test)]
@@ -47,9 +67,10 @@ mod tests {
         let badge_service_ctx = MockBadgeService::new_context();
         badge_service_ctx.expect().returning(move || {
             let mut svc = MockBadgeService::default();
+            let gen_badge_bytes = gen_badge_bytes.clone();
             svc.expect_generate_badge()
                 .with(pred::eq(version))
-                .return_const(gen_badge_bytes.clone());
+                .return_once(move |_| Ok(gen_badge_bytes));
             Ok(svc)
         });
         let badge_service = MockBadgeService::new().unwrap();
