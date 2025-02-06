@@ -11,6 +11,7 @@ pub trait BadgeService: Service {
     fn new() -> Result<Self>
     where
         Self: Sized;
+    fn generate_count_badge(&self, count: u32) -> Result<Vec<u8>>;
     fn generate_version_badge(&self, version: &str) -> Result<Vec<u8>>;
 }
 
@@ -28,6 +29,13 @@ impl BadgeService for ImageProcBadgeService {
     fn new() -> Result<Self> {
         let font = Arc::new(FontRef::try_from_slice(FONT_BYTES)?);
         Ok(Self { font })
+    }
+
+    fn generate_count_badge(&self, count: u32) -> Result<Vec<u8>> {
+        const MAGENTA: image::Rgba<u8> = image::Rgba([255_u8, 64, 255, 255]);
+        const BLACK: image::Rgba<u8> = image::Rgba([0, 0, 0, 255]);
+        let count = count.to_string();
+        generate_badge(MAGENTA, BLACK, &self.font, FONT_SCALE, TEXT_MARGIN, &count)
     }
 
     fn generate_version_badge(&self, version: &str) -> Result<Vec<u8>> {
