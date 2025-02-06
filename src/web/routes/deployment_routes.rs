@@ -39,7 +39,7 @@ pub async fn version_badge(
         .deployment_service
         .get_version(&namespace, &service_name);
 
-    match state.badge_service.generate_badge(&version) {
+    match state.badge_service.generate_version_badge(&version) {
         Ok(image) => Ok(PngResponse(image)),
         Err(err) => {
             eprintln!("Error generating badge for version {version}");
@@ -77,7 +77,7 @@ mod tests {
     use super::*;
 
     #[tokio::test]
-    async fn test_badge() {
+    async fn test_version_badge() {
         let namespace = rand_string();
         let service_name = rand_string();
         let version = "7.16.1";
@@ -94,7 +94,7 @@ mod tests {
         badge_service_ctx.expect().returning(move || {
             let mut svc = MockBadgeService::default();
             let gen_badge_bytes = gen_badge_bytes.clone();
-            svc.expect_generate_badge()
+            svc.expect_generate_version_badge()
                 .with(pred::eq(version))
                 .return_once(move |_| Ok(gen_badge_bytes));
             Ok(svc)
