@@ -1,9 +1,9 @@
-use axum::{Router, routing::get};
+use utoipa_axum::{router::OpenApiRouter, routes};
 
 use super::super::handler::health_handlers as handlers;
 
-pub fn routes() -> Router {
-    Router::new()
-        .route("/self", get(handlers::self_))
-        .route("/ready", get(handlers::ready))
+pub fn routes() -> OpenApiRouter {
+    OpenApiRouter::new()
+        .routes(routes!(handlers::self_))
+        .routes(routes!(handlers::ready))
 }

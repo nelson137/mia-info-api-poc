@@ -7,8 +7,29 @@ use axum::{
 use crate::web::{
     service::{BadgeService, MiaDeploymentService},
     state::DeploymentState,
+    tags,
 };
 
+#[utoipa::path(
+    get,
+    path = "/deployment/{namespace}/{service}/badge",
+    tag = tags::MIA_DEPLOYMENT,
+    summary = "deployment version badge",
+    params(
+        ("namespace", Path, description = "The cluster namespace", example = "vcce-dev"),
+        ("service", Path, description = "The service name", example = "memo-api"),
+    ),
+    responses(
+        (
+            status = OK,
+            description = "A deployment version badge PNG.",
+            body = PngResponse,
+            content_type = mime::IMAGE_PNG.as_ref(),
+            example = "<binary image data>",
+        ),
+        (status = INTERNAL_SERVER_ERROR, description = "Error."),
+    ),
+)]
 pub async fn badge<D: MiaDeploymentService, B: BadgeService>(
     State(state): State<DeploymentState<D, B>>,
     Path((namespace, service_name)): Path<(String, String)>,
@@ -27,6 +48,7 @@ pub async fn badge<D: MiaDeploymentService, B: BadgeService>(
     }
 }
 
+#[derive(utoipa::ToSchema)]
 struct PngResponse(Vec<u8>);
 
 impl IntoResponse for PngResponse {

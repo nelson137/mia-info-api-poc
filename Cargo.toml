@@ -11,6 +11,7 @@ version = "0.1.0"
 edition = "2024"
 rust-version = "1.85"
 resolver = "3"
+license = "MIT OR Apache-2.0"
 
 [features]
 listen_public = []
@@ -24,6 +25,9 @@ imageproc = { git = "https://github.com/image-rs/imageproc.git", branch = "maste
 mime = "*"
 serde = { version = "1.0", features = ["derive"] }
 tokio = { workspace = true }
+utoipa = { version = "5.3", features = ["axum_extras"] }
+utoipa-axum = "0.2"
+utoipa-swagger-ui = { version = "9.0", features = ["axum"] }
 
 [dev-dependencies]
 magick_rust = "1.0"

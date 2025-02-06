@@ -1,9 +1,9 @@
-use axum::{Router, routing::get};
+use utoipa_axum::{router::OpenApiRouter, routes};
 
 use super::super::handler::hello_handlers as handlers;
 
-pub fn routes() -> Router {
-    Router::new()
-        .route("/hello", get(handlers::hello))
-        .route("/hello2/{name}", get(handlers::hello2))
+pub fn routes() -> OpenApiRouter {
+    OpenApiRouter::new()
+        .routes(routes!(handlers::hello))
+        .routes(routes!(handlers::hello2))
 }

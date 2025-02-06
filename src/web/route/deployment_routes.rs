@@ -1,12 +1,9 @@
-use axum::{Router, routing::get};
+use utoipa_axum::{router::OpenApiRouter, routes};
 
 use crate::web::state::DeploymentState;
 
 use super::super::handler::deployment_handlers as handlers;
 
-pub fn routes() -> Router<DeploymentState> {
-    Router::new().route(
-        "/deployment/{namespace}/{service}/badge",
-        get(handlers::badge),
-    )
+pub fn routes() -> OpenApiRouter<DeploymentState> {
+    OpenApiRouter::new().routes(routes!(handlers::badge))
 }
