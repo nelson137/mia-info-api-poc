@@ -8,7 +8,48 @@ use utoipa_axum::{router::OpenApiRouter, routes};
 use crate::web::{state::DeploymentState, tags};
 
 pub fn routes() -> OpenApiRouter<DeploymentState> {
-    OpenApiRouter::new().routes(routes!(version_badge))
+    OpenApiRouter::new()
+        .routes(routes!(container_count_badge))
+        .routes(routes!(version_badge))
+}
+
+#[utoipa::path(
+    get,
+    path = "/{namespace}/{service}/containers/badge",
+    tag = tags::MIA_DEPLOYMENT,
+    summary = "generate deployment container count badge",
+    params(
+        ("namespace", Path, description = "The cluster namespace", example = "vcce-dev"),
+        ("service", Path, description = "The service name", example = "memo-api"),
+    ),
+    responses(
+        (
+            status = OK,
+            description = "A deployment version badge PNG.",
+            body = PngResponse,
+            content_type = mime::IMAGE_PNG.as_ref(),
+            example = "<binary image data>",
+        ),
+        (status = INTERNAL_SERVER_ERROR, description = "Error."),
+    ),
+)]
+pub async fn container_count_badge(
+    State(state): State<DeploymentState>,
+    Path((namespace, service_name)): Path<(String, String)>,
+) -> Result<impl IntoResponse, StatusCode> {
+    let count = state
+        .deployment_service
+        .get_container_count(&namespace, &service_name)
+        .expect("get container count"); // TODO: handle error
+
+    match state.badge_service.generate_count_badge(count) {
+        Ok(image) => Ok(PngResponse(image)),
+        Err(err) => {
+            // eprintln!("Error generating badge for version {version}");
+            eprintln!("{err}");
+            Err(StatusCode::INTERNAL_SERVER_ERROR)
+        }
+    }
 }
 
 #[utoipa::path(
