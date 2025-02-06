@@ -5,7 +5,6 @@ use utoipa::OpenApi;
 use utoipa_axum::router::OpenApiRouter;
 use utoipa_swagger_ui::SwaggerUi;
 
-mod handler;
 mod route;
 mod service;
 mod state;
