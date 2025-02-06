@@ -5,7 +5,7 @@ use utoipa::OpenApi;
 use utoipa_axum::router::OpenApiRouter;
 use utoipa_swagger_ui::SwaggerUi;
 
-mod route;
+mod routes;
 mod service;
 mod state;
 
@@ -34,9 +34,9 @@ pub(crate) fn router() -> Result<Router> {
         .build_pair();
 
     let (router, api) = OpenApiRouter::with_openapi(ApiDoc::openapi())
-        .merge(route::health_routes::routes())
-        .merge(route::hello_routes::routes())
-        .merge(route::deployment_routes::routes().with_state(state::DeploymentState::new()?))
+        .merge(routes::health_routes::routes())
+        .merge(routes::hello_routes::routes())
+        .merge(routes::deployment_routes::routes().with_state(state::DeploymentState::new()?))
         .route("/metrics", get(async move || metric_handle.render()))
         .layer(prometheus_layer)
         .split_for_parts();
