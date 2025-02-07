@@ -623,6 +623,9 @@ dependencies = [
 name = "badge-slint"
 version = "0.1.0"
 dependencies = [
+ "anyhow",
+ "i-slint-backend-winit",
+ "i-slint-core",
  "imageproc",
  "slint",
  "slint-build",

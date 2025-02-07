@@ -1,0 +1,193 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug executable 'dev-client'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--bin=dev-client",
+                    "--package=dev-client"
+                ],
+                "filter": {
+                    "name": "dev-client",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in executable 'dev-client'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bin=dev-client",
+                    "--package=dev-client"
+                ],
+                "filter": {
+                    "name": "dev-client",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug executable 'badge-slint'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--bin=badge-slint",
+                    "--package=badge-slint"
+                ],
+                "filter": {
+                    "name": "badge-slint",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in executable 'badge-slint'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bin=badge-slint",
+                    "--package=badge-slint"
+                ],
+                "filter": {
+                    "name": "badge-slint",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug executable 'mia-info-poc'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--bin=mia-info-poc",
+                    "--package=mia-info-poc"
+                ],
+                "filter": {
+                    "name": "mia-info-poc",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in executable 'mia-info-poc'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bin=mia-info-poc",
+                    "--package=mia-info-poc"
+                ],
+                "filter": {
+                    "name": "mia-info-poc",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example 'badge_imagemagick'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=badge_imagemagick",
+                    "--package=mia-info-poc"
+                ],
+                "filter": {
+                    "name": "badge_imagemagick",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example 'badge_imagemagick'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=badge_imagemagick",
+                    "--package=mia-info-poc"
+                ],
+                "filter": {
+                    "name": "badge_imagemagick",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example 'badge_imageproc'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=badge_imageproc",
+                    "--package=mia-info-poc"
+                ],
+                "filter": {
+                    "name": "badge_imageproc",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example 'badge_imageproc'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=badge_imageproc",
+                    "--package=mia-info-poc"
+                ],
+                "filter": {
+                    "name": "badge_imageproc",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        }
+    ]
+}
