@@ -1,8 +1,9 @@
 [workspace]
-members = ["crates/*"]
+members = ["crates/*", "examples/*"]
 
 [workspace.dependencies]
 anyhow = "1.0"
+imageproc = { git = "https://github.com/image-rs/imageproc.git", branch = "master" }
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
 
 [package]
@@ -21,7 +22,7 @@ ab_glyph = "*"
 anyhow = { workspace = true }
 axum = "0.8"
 axum-prometheus = "0.8"
-imageproc = { git = "https://github.com/image-rs/imageproc.git", branch = "master" }
+imageproc = { workspace = true }
 mime = "*"
 serde = { version = "1.0", features = ["derive"] }
 tokio = { workspace = true }
