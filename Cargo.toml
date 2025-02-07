@@ -3,7 +3,7 @@ members = ["crates/*", "examples/*"]
 
 [workspace.dependencies]
 anyhow = "1.0"
-imageproc = { git = "https://github.com/image-rs/imageproc.git", branch = "master" }
+imageproc = { git = "https://github.com/image-rs/imageproc.git", rev = "33a88f885b728a94e1c45e87ffbbe4d4022f0f46" }
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
 
 [package]
