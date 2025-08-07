@@ -1,17 +1,14 @@
 use axum_prometheus::metrics;
 
+mod settings;
 #[cfg(test)]
 mod test_utils;
 mod web;
 
-#[cfg(not(feature = "listen_public"))]
-const BIND_ADDR: &str = "localhost:8080";
-
-#[cfg(feature = "listen_public")]
-const BIND_ADDR: &str = "0.0.0.0:8080";
-
 #[tokio::main]
 async fn main() {
+    let settings = &*settings::SETTINGS;
+
     let routes = match web::router() {
         Ok(r) => r,
         Err(err) => panic!("{err}"),
@@ -27,7 +24,9 @@ async fn main() {
     )
     .set(1);
 
-    let listener = tokio::net::TcpListener::bind(BIND_ADDR).await.unwrap();
+    let listener = tokio::net::TcpListener::bind(&settings.bind_addr)
+        .await
+        .unwrap();
     eprintln!("Listening on {:?}", listener.local_addr().unwrap());
 
     axum::serve(listener, routes.into_make_service())
