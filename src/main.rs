@@ -31,6 +31,9 @@ async fn main() {
     eprintln!("Listening on {:?}", listener.local_addr().unwrap());
 
     axum::serve(listener, routes.into_make_service())
+        .with_graceful_shutdown(async {
+            tokio::signal::ctrl_c().await.expect("cancellation signal")
+        })
         .await
         .unwrap();
 }

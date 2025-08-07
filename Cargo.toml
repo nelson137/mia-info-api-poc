@@ -4,7 +4,7 @@ members = ["crates/*", "examples/*"]
 [workspace.dependencies]
 anyhow = "1.0"
 imageproc = { git = "https://github.com/image-rs/imageproc.git", branch = "master" }
-tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+tokio = { version = "1", features = ["macros", "rt-multi-thread", "signal"] }
 
 [package]
 name = "mia-info-poc"
