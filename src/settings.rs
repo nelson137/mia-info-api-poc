@@ -8,6 +8,7 @@ pub struct Settings {
     #[allow(dead_code)]
     pub environment: String,
     pub bind_addr: String,
+    pub log_filter: String,
 }
 
 impl Settings {

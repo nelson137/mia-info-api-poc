@@ -26,6 +26,8 @@ imageproc = { workspace = true }
 mime = "*"
 serde = { version = "1.0", features = ["derive"] }
 tokio = { workspace = true }
+tracing = { version = "0.1", features = ["max_level_trace", "release_max_level_info"] }
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 utoipa = { version = "5.3", features = ["axum_extras"] }
 utoipa-axum = "0.2"
 utoipa-swagger-ui = { version = "9.0", features = ["axum"] }
