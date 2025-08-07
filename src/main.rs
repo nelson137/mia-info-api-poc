@@ -24,6 +24,18 @@ async fn main() -> Result<()> {
         .with(filter_layer)
         .with(fmt_layer);
 
+    #[cfg(feature = "loki")]
+    let subscriber = subscriber.with({
+        let url = url::Url::parse(&settings.loki_url).context("failed to parse loki url")?;
+        let (layer, task) = tracing_loki::builder()
+            .extra_field("service_name", env!("CARGO_PKG_NAME"))?
+            .extra_field("environment", &settings.environment)?
+            .build_url(url)
+            .context("failed to build loki layer")?;
+        tokio::spawn(task);
+        layer
+    });
+
     tracing_subscriber::util::SubscriberInitExt::init(subscriber);
 
     let routes = web::router()?;

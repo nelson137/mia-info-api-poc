@@ -15,6 +15,15 @@ services:
         cat <<EOF > /etc/grafana/provisioning/datasources/ds.yaml
         apiVersion: 1
         datasources:
+          - name: Loki
+            type: loki
+            access: proxy
+            orgId: 1
+            url: http://loki:3100
+            basicAuth: false
+            isDefault: false
+            version: 1
+            editable: false
           - name: Prometheus
             type: prometheus
             orgId: 1
@@ -25,6 +34,11 @@ services:
             editable: false
         EOF
         /run.sh
+  loki:
+    image: grafana/loki:3.3.2
+    networks: ['net']
+    ports: ['3100:3100']
+    command: ['-config.file=/etc/loki/local-config.yaml']
   prometheus:
     image: prom/prometheus:v3.1.0
     networks: ['net']

@@ -1,2 +1,3 @@
 bind_addr = "0.0.0.0:8080"
 log_filter = "info"
+loki_url = "http://loki:3100"

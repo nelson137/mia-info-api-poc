@@ -15,6 +15,7 @@ resolver = "3"
 license = "MIT OR Apache-2.0"
 
 [features]
+loki = ["dep:tracing-loki", "dep:url"]
 
 [dependencies]
 ab_glyph = "*"
@@ -27,7 +28,9 @@ mime = "*"
 serde = { version = "1.0", features = ["derive"] }
 tokio = { workspace = true }
 tracing = { version = "0.1", features = ["max_level_trace", "release_max_level_info"] }
+tracing-loki = { version = "0.2", optional = true, default-features = false, features = ["compat-0-2-1", "rustls"] }
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+url = { version = "*", optional = true }
 utoipa = { version = "5.3", features = ["axum_extras"] }
 utoipa-axum = "0.2"
 utoipa-swagger-ui = { version = "9.0", features = ["axum"] }

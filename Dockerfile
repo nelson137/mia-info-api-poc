@@ -25,12 +25,12 @@ COPY --from=planner /app/recipe.json recipe.json
 
 # Build dependencies - this layer is cached as long as `recipe.json`
 # doesn't change.
-RUN cargo chef cook --release --bin mia-info-poc --recipe-path recipe.json
+RUN cargo chef cook --release --bin mia-info-poc --features=loki --recipe-path recipe.json
 
 # Build the whole project
 COPY . .
 
-RUN cargo build --release --bin mia-info-poc
+RUN cargo build --release --bin mia-info-poc --features=loki
 
 ######################################################################
 # Runtime

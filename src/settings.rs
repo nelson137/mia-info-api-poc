@@ -9,6 +9,8 @@ pub struct Settings {
     pub environment: String,
     pub bind_addr: String,
     pub log_filter: String,
+    #[cfg(feature = "loki")]
+    pub loki_url: String,
 }
 
 impl Settings {
