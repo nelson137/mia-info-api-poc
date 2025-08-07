@@ -1,5 +1,3 @@
-#![feature(async_closure)]
-
 use axum_prometheus::metrics;
 
 #[cfg(test)]
