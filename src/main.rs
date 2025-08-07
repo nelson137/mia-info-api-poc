@@ -19,11 +19,14 @@ async fn main() {
         Err(err) => panic!("{err}"),
     };
 
-    metrics::gauge!("mia_info", &[
-        ("version_major", "2"),
-        ("version_minor", "3"),
-        ("version_patch", "4")
-    ])
+    metrics::gauge!(
+        "mia_info",
+        &[
+            ("version_major", "2"),
+            ("version_minor", "3"),
+            ("version_patch", "4")
+        ]
+    )
     .set(1);
 
     let listener = tokio::net::TcpListener::bind(BIND_ADDR).await.unwrap();
