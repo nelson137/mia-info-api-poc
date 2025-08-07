@@ -1,3 +1,4 @@
+use anyhow::{Context, Result};
 use axum_prometheus::metrics;
 use tracing_subscriber::layer::SubscriberExt;
 
@@ -7,7 +8,7 @@ mod test_utils;
 mod web;
 
 #[tokio::main]
-async fn main() {
+async fn main() -> Result<()> {
     let settings = &*settings::SETTINGS;
 
     let filter_layer = tracing_subscriber::EnvFilter::try_from_default_env()
@@ -25,10 +26,7 @@ async fn main() {
 
     tracing_subscriber::util::SubscriberInitExt::init(subscriber);
 
-    let routes = match web::router() {
-        Ok(r) => r,
-        Err(err) => panic!("{err}"),
-    };
+    let routes = web::router()?;
 
     metrics::gauge!(
         "mia_info",
@@ -42,7 +40,7 @@ async fn main() {
 
     let listener = tokio::net::TcpListener::bind(&settings.bind_addr)
         .await
-        .unwrap();
+        .with_context(|| format!("failed to bind to address: {}", settings.bind_addr))?;
 
     tracing::info!(
         addr = listener.local_addr().unwrap().to_string(),
@@ -55,5 +53,5 @@ async fn main() {
             tokio::signal::ctrl_c().await.expect("cancellation signal")
         })
         .await
-        .unwrap();
+        .context("failed to run server")
 }
