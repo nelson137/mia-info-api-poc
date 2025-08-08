@@ -1,7 +1,7 @@
 use axum::{http::StatusCode, response::IntoResponse};
-use utoipa_axum::{router::OpenApiRouter, routes};
+use utoipa_axum::routes;
 
-use crate::web::tags;
+use crate::web::{state::OpenApiRouter, tags};
 
 pub fn routes() -> OpenApiRouter {
     OpenApiRouter::new()

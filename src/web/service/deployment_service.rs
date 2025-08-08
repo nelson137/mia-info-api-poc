@@ -1,4 +1,9 @@
+use std::sync::Arc;
+
 use anyhow::Result;
+use axum::extract::FromRef;
+
+use crate::web::state::AppState;
 
 use super::Service;
 
@@ -6,6 +11,21 @@ use super::Service;
 pub trait MiaDeploymentService: Service {
     fn get_container_count(&self, namespace: &str, service_name: &str) -> Result<u32>;
     fn get_version(&self, namespace: &str, service_name: &str) -> String;
+}
+
+impl FromRef<AppState> for Arc<dyn MiaDeploymentService> {
+    fn from_ref(state: &AppState) -> Self {
+        state.deployment_service.clone()
+    }
+}
+
+#[cfg(test)]
+impl From<MockMiaDeploymentService>
+    for axum::extract::State<std::sync::Arc<dyn MiaDeploymentService>>
+{
+    fn from(value: MockMiaDeploymentService) -> Self {
+        axum::extract::State(std::sync::Arc::new(value))
+    }
 }
 
 #[derive(Clone, Default)]

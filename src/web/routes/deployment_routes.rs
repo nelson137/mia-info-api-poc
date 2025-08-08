@@ -1,13 +1,19 @@
+use std::sync::Arc;
+
 use axum::{
     extract::{Path, State},
     http::{HeaderValue, StatusCode, header},
     response::{IntoResponse, Response},
 };
-use utoipa_axum::{router::OpenApiRouter, routes};
+use utoipa_axum::routes;
 
-use crate::web::{state::DeploymentState, tags};
+use crate::web::{
+    service::{BadgeService, MiaDeploymentService},
+    state::OpenApiRouter,
+    tags,
+};
 
-pub fn routes() -> OpenApiRouter<DeploymentState> {
+pub fn routes() -> OpenApiRouter {
     OpenApiRouter::new()
         .routes(routes!(container_count_badge))
         .routes(routes!(version_badge))
@@ -34,15 +40,15 @@ pub fn routes() -> OpenApiRouter<DeploymentState> {
     ),
 )]
 pub async fn container_count_badge(
-    State(state): State<DeploymentState>,
+    State(deployment_service): State<Arc<dyn MiaDeploymentService>>,
+    State(badge_service): State<Arc<dyn BadgeService>>,
     Path((namespace, service_name)): Path<(String, String)>,
 ) -> Result<impl IntoResponse, StatusCode> {
-    let count = state
-        .deployment_service
+    let count = deployment_service
         .get_container_count(&namespace, &service_name)
         .expect("get container count"); // TODO: handle error
 
-    match state.badge_service.generate_count_badge(count) {
+    match badge_service.generate_count_badge(count) {
         Ok(image) => Ok(PngResponse(image)),
         Err(err) => {
             // eprintln!("Error generating badge for version {version}");
@@ -73,14 +79,13 @@ pub async fn container_count_badge(
     ),
 )]
 pub async fn version_badge(
-    State(state): State<DeploymentState>,
+    State(deployment_service): State<Arc<dyn MiaDeploymentService>>,
+    State(badge_service): State<Arc<dyn BadgeService>>,
     Path((namespace, service_name)): Path<(String, String)>,
 ) -> Result<impl IntoResponse, StatusCode> {
-    let version = state
-        .deployment_service
-        .get_version(&namespace, &service_name);
+    let version = deployment_service.get_version(&namespace, &service_name);
 
-    match state.badge_service.generate_version_badge(&version) {
+    match badge_service.generate_version_badge(&version) {
         Ok(image) => Ok(PngResponse(image)),
         Err(err) => {
             eprintln!("Error generating badge for version {version}");
@@ -109,10 +114,7 @@ mod tests {
 
     use crate::{
         test_utils::*,
-        web::{
-            service::{BadgeService, MockBadgeService, MockMiaDeploymentService},
-            state::DeploymentState,
-        },
+        web::service::{BadgeService, MockBadgeService, MockMiaDeploymentService},
     };
 
     use super::*;
@@ -142,11 +144,14 @@ mod tests {
         });
         let badge_svc = MockBadgeService::new().unwrap();
 
-        let state = DeploymentState::from_parts(deployment_svc, badge_svc);
-        let actual_badge = version_badge(State(state), Path((namespace, service_name)))
-            .await
-            .read_response_as_bytes()
-            .await;
+        let actual_badge = version_badge(
+            deployment_svc.into(),
+            badge_svc.into(),
+            Path((namespace, service_name)),
+        )
+        .await
+        .read_response_as_bytes()
+        .await;
 
         assert_eq!(expected_badge, actual_badge);
     }

@@ -60,7 +60,7 @@ async fn main() -> Result<()> {
         "Starting server",
     );
 
-    axum::serve(listener, routes.into_make_service())
+    axum::serve(listener, routes)
         .with_graceful_shutdown(async {
             tokio::signal::ctrl_c().await.expect("cancellation signal")
         })

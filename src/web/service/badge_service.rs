@@ -2,7 +2,10 @@ use std::{io::Cursor, sync::Arc};
 
 use ab_glyph::FontRef;
 use anyhow::Result;
+use axum::extract::FromRef;
 use imageproc::{drawing, image};
+
+use crate::web::state::AppState;
 
 use super::Service;
 
@@ -13,6 +16,19 @@ pub trait BadgeService: Service {
         Self: Sized;
     fn generate_count_badge(&self, count: u32) -> Result<Vec<u8>>;
     fn generate_version_badge(&self, version: &str) -> Result<Vec<u8>>;
+}
+
+impl FromRef<AppState> for Arc<dyn BadgeService> {
+    fn from_ref(state: &AppState) -> Self {
+        state.badge_service.clone()
+    }
+}
+
+#[cfg(test)]
+impl From<MockBadgeService> for axum::extract::State<std::sync::Arc<dyn BadgeService>> {
+    fn from(value: MockBadgeService) -> Self {
+        axum::extract::State(std::sync::Arc::new(value))
+    }
 }
 
 static FONT_BYTES: &[u8] = include_bytes!("../../../examples/DejaVuSans.ttf");
