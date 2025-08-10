@@ -6,19 +6,11 @@ use crate::web::state::AppState;
 use super::Service;
 
 #[substate(AppState, field(deployment_service))]
+#[cfg_attr(test, mia_info_poc_macros::mock_helpers)]
 #[cfg_attr(test, mockall::automock)]
 pub trait MiaDeploymentService: Service {
     fn get_container_count(&self, namespace: &str, service_name: &str) -> Result<u32>;
     fn get_version(&self, namespace: &str, service_name: &str) -> String;
-}
-
-#[cfg(test)]
-impl From<MockMiaDeploymentService>
-    for axum::extract::State<std::sync::Arc<dyn MiaDeploymentService>>
-{
-    fn from(value: MockMiaDeploymentService) -> Self {
-        axum::extract::State(std::sync::Arc::new(value))
-    }
 }
 
 #[derive(Clone, Default)]

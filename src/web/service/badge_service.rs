@@ -10,6 +10,7 @@ use crate::web::state::AppState;
 use super::Service;
 
 #[substate(AppState)]
+#[cfg_attr(test, mia_info_poc_macros::mock_helpers)]
 #[cfg_attr(test, mockall::automock)]
 pub trait BadgeService: Service {
     fn new() -> Result<Self>
@@ -17,13 +18,6 @@ pub trait BadgeService: Service {
         Self: Sized;
     fn generate_count_badge(&self, count: u32) -> Result<Vec<u8>>;
     fn generate_version_badge(&self, version: &str) -> Result<Vec<u8>>;
-}
-
-#[cfg(test)]
-impl From<MockBadgeService> for axum::extract::State<std::sync::Arc<dyn BadgeService>> {
-    fn from(value: MockBadgeService) -> Self {
-        axum::extract::State(std::sync::Arc::new(value))
-    }
 }
 
 static FONT_BYTES: &[u8] = include_bytes!("../../../examples/DejaVuSans.ttf");
