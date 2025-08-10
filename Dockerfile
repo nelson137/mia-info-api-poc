@@ -16,6 +16,10 @@ RUN cargo chef prepare --bin mia-info-poc --recipe-path recipe.json
 
 FROM instrumentisto/rust:nightly-bookworm-slim-2025-08-08 AS builder
 
+RUN apt update &&\
+    apt install -y --no-install-recommends curl && \
+    rm -rf /var/lib/apt/lists/*
+
 WORKDIR /app
 
 RUN cargo install cargo-chef
