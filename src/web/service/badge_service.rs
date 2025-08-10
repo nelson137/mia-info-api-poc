@@ -2,13 +2,14 @@ use std::{io::Cursor, sync::Arc};
 
 use ab_glyph::FontRef;
 use anyhow::Result;
-use axum::extract::FromRef;
 use imageproc::{drawing, image};
+use mia_info_poc_macros::substate;
 
 use crate::web::state::AppState;
 
 use super::Service;
 
+#[substate(AppState, field(badge_service))]
 #[cfg_attr(test, mockall::automock)]
 pub trait BadgeService: Service {
     fn new() -> Result<Self>
@@ -16,12 +17,6 @@ pub trait BadgeService: Service {
         Self: Sized;
     fn generate_count_badge(&self, count: u32) -> Result<Vec<u8>>;
     fn generate_version_badge(&self, version: &str) -> Result<Vec<u8>>;
-}
-
-impl FromRef<AppState> for Arc<dyn BadgeService> {
-    fn from_ref(state: &AppState) -> Self {
-        state.badge_service.clone()
-    }
 }
 
 #[cfg(test)]

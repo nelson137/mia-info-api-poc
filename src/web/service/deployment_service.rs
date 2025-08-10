@@ -1,22 +1,15 @@
-use std::sync::Arc;
-
 use anyhow::Result;
-use axum::extract::FromRef;
+use mia_info_poc_macros::substate;
 
 use crate::web::state::AppState;
 
 use super::Service;
 
+#[substate(AppState, field(deployment_service))]
 #[cfg_attr(test, mockall::automock)]
 pub trait MiaDeploymentService: Service {
     fn get_container_count(&self, namespace: &str, service_name: &str) -> Result<u32>;
     fn get_version(&self, namespace: &str, service_name: &str) -> String;
-}
-
-impl FromRef<AppState> for Arc<dyn MiaDeploymentService> {
-    fn from_ref(state: &AppState) -> Self {
-        state.deployment_service.clone()
-    }
 }
 
 #[cfg(test)]

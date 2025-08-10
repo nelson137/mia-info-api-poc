@@ -1,0 +1,12 @@
+[package]
+name = "mia-info-poc-macros-core-test-utils"
+version = "0.1.0"
+edition = "2024"
+description = "test utilities for mia-info-poc-macros-core"
+license = "MIT OR Apache-2.0"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+syn = { workspace = true }
+proc-macro2 = { workspace = true }
