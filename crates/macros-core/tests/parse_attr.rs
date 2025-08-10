@@ -13,20 +13,20 @@ fn macro_contents__empty() -> syn::Result<()> {
 
 #[test]
 fn macro_contents__source__no_comma_no_field() -> syn::Result<()> {
-    let result: Result<SubstateMacroAttr> = parse! {
+    let attr: SubstateMacroAttr = parse! {
         MyState
-    };
-    assert_err!(result, "expected `,`");
+    }?;
+    assert_eq!(attr.source_state_path, path!(MyState));
+    assert_eq!(attr.field, None);
     Ok(())
 }
 
 #[test]
-fn macro_contents__source__no_field() -> syn::Result<()> {
+fn macro_contents__source__no_field() {
     let result: Result<SubstateMacroAttr> = parse! {
         MyState,
     };
     assert_err!(result, "expected `field(<ident>)`");
-    Ok(())
 }
 
 #[test]
@@ -62,6 +62,6 @@ fn macro_contents__source__field() -> syn::Result<()> {
         MyState, field(my_sub)
     }?;
     assert_eq!(attr.source_state_path, path!(MyState));
-    assert_eq!(attr.field, ident("my_sub"));
+    assert_eq!(attr.field, Some(ident("my_sub")));
     Ok(())
 }

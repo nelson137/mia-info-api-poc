@@ -9,7 +9,7 @@ use crate::web::state::AppState;
 
 use super::Service;
 
-#[substate(AppState, field(badge_service))]
+#[substate(AppState)]
 #[cfg_attr(test, mockall::automock)]
 pub trait BadgeService: Service {
     fn new() -> Result<Self>
