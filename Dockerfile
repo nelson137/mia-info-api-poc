@@ -1,3 +1,5 @@
+# syntax=docker/dockerfile:1.7-labs
+
 ######################################################################
 # Planner
 
@@ -7,7 +9,7 @@ RUN cargo install cargo-chef
 
 WORKDIR /app
 
-COPY . .
+COPY --exclude=target . .
 
 RUN cargo chef prepare --bin mia-info-poc --recipe-path recipe.json
 
@@ -32,7 +34,7 @@ COPY --from=planner /app/recipe.json recipe.json
 RUN cargo chef cook --release --bin mia-info-poc --features=loki --recipe-path recipe.json
 
 # Build the whole project
-COPY . .
+COPY --exclude=target . .
 
 RUN cargo build --release --bin mia-info-poc --features=loki
 
