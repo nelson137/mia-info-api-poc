@@ -1,7 +1,7 @@
 ######################################################################
 # Planner
 
-FROM instrumentisto/rust:nightly-bookworm-slim-2025-02-01 AS planner
+FROM instrumentisto/rust:nightly-bookworm-slim-2025-08-08 AS planner
 
 RUN cargo install cargo-chef
 
@@ -14,7 +14,7 @@ RUN cargo chef prepare --bin mia-info-poc --recipe-path recipe.json
 ######################################################################
 # Builder
 
-FROM instrumentisto/rust:nightly-bookworm-slim-2025-02-01 AS builder
+FROM instrumentisto/rust:nightly-bookworm-slim-2025-08-08 AS builder
 
 WORKDIR /app
 
