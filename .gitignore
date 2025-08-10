@@ -1,3 +1,5 @@
 /target
 
+/docker-build.log
+
 .DS_Store
