@@ -23,7 +23,7 @@ loki = ["dep:tracing-loki", "dep:url"]
 [dependencies]
 ab_glyph = "*"
 anyhow = { workspace = true }
-axum = "0.8"
+axum = { version = "0.8", features = ["macros"] }
 axum-prometheus = "0.8"
 config = { version = "0.15", default-features = false, features = ["convert-case", "toml"] }
 imageproc = { workspace = true }
