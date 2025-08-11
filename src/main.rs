@@ -6,6 +6,7 @@ mod error;
 mod settings;
 #[cfg(test)]
 mod test_utils;
+mod utils;
 mod web;
 
 #[tokio::main]

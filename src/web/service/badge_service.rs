@@ -18,8 +18,20 @@ pub trait BadgeService: Service {
     fn new() -> Result<Self>
     where
         Self: Sized;
-    fn generate_count_badge(&self, count: u32) -> Result<Vec<u8>>;
-    fn generate_version_badge(&self, version: &str) -> Result<Vec<u8>>;
+
+    fn generate_count_badge(
+        &self,
+        count: u32,
+        bg: Option<image::Rgba<u8>>,
+        fg: Option<image::Rgba<u8>>,
+    ) -> Result<Vec<u8>>;
+
+    fn generate_version_badge(
+        &self,
+        version: &str,
+        bg: Option<image::Rgba<u8>>,
+        fg: Option<image::Rgba<u8>>,
+    ) -> Result<Vec<u8>>;
 }
 
 static FONT_NAME: &str = "DejaVuSans (embedded)";
@@ -27,6 +39,10 @@ static FONT_BYTES: &[u8] = include_bytes!("../../../examples/DejaVuSans.ttf");
 
 const FONT_SCALE: f32 = 128.0;
 const TEXT_MARGIN: u32 = 8;
+
+const BLACK: image::Rgba<u8> = image::Rgba([0, 0, 0, 255]);
+const MAGENTA: image::Rgba<u8> = image::Rgba([255_u8, 64, 255, 255]);
+const RED: image::Rgba<u8> = image::Rgba([255_u8, 64, 64, 255]);
 
 #[derive(Clone)]
 pub struct ImageProcBadgeService {
@@ -41,17 +57,29 @@ impl BadgeService for ImageProcBadgeService {
         Ok(Self { font })
     }
 
-    fn generate_count_badge(&self, count: u32) -> Result<Vec<u8>> {
-        const MAGENTA: image::Rgba<u8> = image::Rgba([255_u8, 64, 255, 255]);
-        const BLACK: image::Rgba<u8> = image::Rgba([0, 0, 0, 255]);
+    fn generate_count_badge(
+        &self,
+        count: u32,
+        bg: Option<image::Rgba<u8>>,
+        fg: Option<image::Rgba<u8>>,
+    ) -> Result<Vec<u8>> {
+        let bg = bg.unwrap_or(MAGENTA);
+        let fg = fg.unwrap_or(BLACK);
+
         let count = count.to_string();
-        generate_badge(MAGENTA, BLACK, &self.font, FONT_SCALE, TEXT_MARGIN, &count)
+        generate_badge(bg, fg, &self.font, FONT_SCALE, TEXT_MARGIN, &count)
     }
 
-    fn generate_version_badge(&self, version: &str) -> Result<Vec<u8>> {
-        const RED: image::Rgba<u8> = image::Rgba([255_u8, 64, 64, 255]);
-        const BLACK: image::Rgba<u8> = image::Rgba([0, 0, 0, 255]);
-        generate_badge(RED, BLACK, &self.font, FONT_SCALE, TEXT_MARGIN, version)
+    fn generate_version_badge(
+        &self,
+        version: &str,
+        bg: Option<image::Rgba<u8>>,
+        fg: Option<image::Rgba<u8>>,
+    ) -> Result<Vec<u8>> {
+        let bg = bg.unwrap_or(RED);
+        let fg = fg.unwrap_or(BLACK);
+
+        generate_badge(bg, fg, &self.font, FONT_SCALE, TEXT_MARGIN, version)
     }
 }
 

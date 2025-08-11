@@ -15,6 +15,9 @@ pub enum AppError {
         #[from]
         source: imageproc::image::ImageError,
     },
+
+    #[error("{0}")]
+    Message(String),
 }
 
 impl IntoResponse for AppError {
@@ -22,6 +25,7 @@ impl IntoResponse for AppError {
         match self {
             Self::InvalidFont(..) => server_error_response(),
             Self::GenerateBadge { .. } => json_response(self.to_string()),
+            Self::Message(message) => json_response(message),
         }
     }
 }

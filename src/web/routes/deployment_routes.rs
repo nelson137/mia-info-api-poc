@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use axum::{
-    extract::{Path, State},
+    extract::{Path, Query, State},
     http::{HeaderValue, header},
     response::{IntoResponse, Response},
 };
@@ -9,6 +9,7 @@ use utoipa_axum::routes;
 
 use crate::{
     error::Result,
+    utils::parse_hex_string,
     web::{
         models::JsonResponse,
         service::{BadgeService, MiaDeploymentService},
@@ -70,6 +71,13 @@ impl IntoResponse for ContainerCountResponse {
     }
 }
 
+/// Query parameters for the [`container_count_badge`] endpoint.
+#[derive(Clone, Debug, Default, serde::Deserialize)]
+pub struct ContainersBadgeQuery {
+    bg: Option<String>,
+    fg: Option<String>,
+}
+
 #[utoipa::path(
     get,
     path = "/{namespace}/{service}/containers/badge",
@@ -94,9 +102,14 @@ pub async fn container_count_badge(
     State(deployment_service): State<Arc<dyn MiaDeploymentService>>,
     State(badge_service): State<Arc<dyn BadgeService>>,
     Path((namespace, service_name)): Path<(String, String)>,
+    Query(query): Query<ContainersBadgeQuery>,
 ) -> Result<impl IntoResponse> {
+    let bg = query.bg.as_deref().map(parse_hex_string).transpose()?;
+    let fg = query.fg.as_deref().map(parse_hex_string).transpose()?;
+
     let count = deployment_service.get_container_count(&namespace, &service_name)?;
-    let image = badge_service.generate_count_badge(count)?;
+    let image = badge_service.generate_count_badge(count, bg, fg)?;
+
     Ok(PngResponse(image))
 }
 
@@ -145,6 +158,13 @@ impl IntoResponse for DeploymentVersionResponse {
     }
 }
 
+/// Query parameters for the [`version_badge`] endpoint.
+#[derive(Clone, Debug, Default, serde::Deserialize)]
+pub struct VersionBadgeQuery {
+    bg: Option<String>,
+    fg: Option<String>,
+}
+
 #[utoipa::path(
     get,
     path = "/{namespace}/{service}/version/badge",
@@ -169,9 +189,14 @@ pub async fn version_badge(
     State(deployment_service): State<Arc<dyn MiaDeploymentService>>,
     State(badge_service): State<Arc<dyn BadgeService>>,
     Path((namespace, service_name)): Path<(String, String)>,
+    Query(query): Query<VersionBadgeQuery>,
 ) -> Result<impl IntoResponse> {
+    let bg = query.bg.as_deref().map(parse_hex_string).transpose()?;
+    let fg = query.fg.as_deref().map(parse_hex_string).transpose()?;
+
     let version = deployment_service.get_version(&namespace, &service_name);
-    let image = badge_service.generate_version_badge(&version)?;
+    let image = badge_service.generate_version_badge(&version, bg, fg)?;
+
     Ok(PngResponse(image))
 }
 
@@ -218,16 +243,19 @@ mod tests {
             let mut svc = MockBadgeService::default();
             let gen_badge_bytes = gen_badge_bytes.clone();
             svc.expect_generate_version_badge()
-                .with(pred::eq(version))
-                .return_once(move |_| Ok(gen_badge_bytes));
+                .with(pred::eq(version), pred::always(), pred::always())
+                .return_once(move |_, _, _| Ok(gen_badge_bytes));
             Ok(svc)
         });
         let badge_svc = MockBadgeService::new().unwrap();
+
+        let query = VersionBadgeQuery::default();
 
         let actual_badge = version_badge(
             deployment_svc.into(),
             badge_svc.into(),
             Path((namespace, service_name)),
+            Query(query),
         )
         .await
         .read_response_as_bytes()

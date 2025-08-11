@@ -30,6 +30,7 @@ config = { version = "0.15", default-features = false, features = ["convert-case
 imageproc = { workspace = true }
 mia-info-poc-macros = { version = "0.1.0", path = "./crates/macros" }
 mime = "*"
+palette = "0.7"
 serde = { version = "1.0", features = ["derive"] }
 thiserror = { workspace = true }
 tokio = { workspace = true }
