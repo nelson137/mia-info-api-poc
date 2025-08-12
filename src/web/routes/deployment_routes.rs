@@ -12,8 +12,8 @@ use crate::{
     utils::parse_hex_string,
     web::{
         models::{
-            ContainerCountResponse, ContainersBadgeQuery, DeploymentVersionResponse,
-            VersionBadgeQuery,
+            DeploymentCountBadgeQuery, DeploymentCountResponse, DeploymentVersionBadgeQuery,
+            DeploymentVersionResponse,
         },
         service::{BadgeService, MiaDeploymentService},
         state::OpenApiRouter,
@@ -23,10 +23,10 @@ use crate::{
 
 pub fn routes() -> OpenApiRouter {
     OpenApiRouter::new()
-        .routes(routes!(container_count))
-        .routes(routes!(container_count_badge))
-        .routes(routes!(version))
-        .routes(routes!(version_badge))
+        .routes(routes!(get_deployment_container_count))
+        .routes(routes!(get_deployment_container_count_badge))
+        .routes(routes!(get_deployment_version))
+        .routes(routes!(get_deployment_version_badge))
 }
 
 #[utoipa::path(
@@ -42,19 +42,19 @@ pub fn routes() -> OpenApiRouter {
         (
             status = OK,
             description = "Container count information.",
-            body = ContainerCountResponse,
+            body = DeploymentCountResponse,
             content_type = mime::JSON.as_ref(),
             example = r#"{ "namespace": "vcce-dev", "service": "memo-api", "containers": 3 }"#,
         ),
         (status = INTERNAL_SERVER_ERROR, description = "Error."),
     ),
 )]
-pub async fn container_count(
+pub async fn get_deployment_container_count(
     State(deployment_service): State<Arc<dyn MiaDeploymentService>>,
     Path((namespace, service_name)): Path<(String, String)>,
 ) -> Result<impl IntoResponse> {
     let count = deployment_service.get_container_count(&namespace, &service_name)?;
-    Ok(ContainerCountResponse {
+    Ok(DeploymentCountResponse {
         namespace,
         service: service_name,
         containers: count,
@@ -81,11 +81,11 @@ pub async fn container_count(
         (status = INTERNAL_SERVER_ERROR, description = "Error."),
     ),
 )]
-pub async fn container_count_badge(
+pub async fn get_deployment_container_count_badge(
     State(deployment_service): State<Arc<dyn MiaDeploymentService>>,
     State(badge_service): State<Arc<dyn BadgeService>>,
     Path((namespace, service_name)): Path<(String, String)>,
-    Query(query): Query<ContainersBadgeQuery>,
+    Query(query): Query<DeploymentCountBadgeQuery>,
 ) -> Result<impl IntoResponse> {
     let bg = query.bg.as_deref().map(parse_hex_string).transpose()?;
     let fg = query.fg.as_deref().map(parse_hex_string).transpose()?;
@@ -116,7 +116,7 @@ pub async fn container_count_badge(
         (status = INTERNAL_SERVER_ERROR, description = "Error."),
     ),
 )]
-pub async fn version(
+pub async fn get_deployment_version(
     State(deployment_service): State<Arc<dyn MiaDeploymentService>>,
     Path((namespace, service_name)): Path<(String, String)>,
 ) -> Result<impl IntoResponse> {
@@ -148,11 +148,11 @@ pub async fn version(
         (status = INTERNAL_SERVER_ERROR, description = "Error."),
     ),
 )]
-pub async fn version_badge(
+pub async fn get_deployment_version_badge(
     State(deployment_service): State<Arc<dyn MiaDeploymentService>>,
     State(badge_service): State<Arc<dyn BadgeService>>,
     Path((namespace, service_name)): Path<(String, String)>,
-    Query(query): Query<VersionBadgeQuery>,
+    Query(query): Query<DeploymentVersionBadgeQuery>,
 ) -> Result<impl IntoResponse> {
     let bg = query.bg.as_deref().map(parse_hex_string).transpose()?;
     let fg = query.fg.as_deref().map(parse_hex_string).transpose()?;
@@ -212,9 +212,9 @@ mod tests {
         });
         let badge_svc = MockBadgeService::new().unwrap();
 
-        let query = VersionBadgeQuery::default();
+        let query = DeploymentVersionBadgeQuery::default();
 
-        let actual_badge = version_badge(
+        let actual_badge = get_deployment_version_badge(
             deployment_svc.into(),
             badge_svc.into(),
             Path((namespace, service_name)),
