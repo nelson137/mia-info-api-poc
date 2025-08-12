@@ -59,7 +59,6 @@ async fn main() -> Result<()> {
 
     tracing::info!(
         addr = listener.local_addr().unwrap().to_string(),
-        environment = settings.environment,
         version = env!("CARGO_PKG_VERSION"),
         "Starting server",
     );
