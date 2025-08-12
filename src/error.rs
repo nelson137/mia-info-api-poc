@@ -31,5 +31,5 @@ fn server_error_response() -> axum::response::Response {
 }
 
 fn json_response(message: String) -> axum::response::Response {
-    JsonResponse::error(message).into_response()
+    JsonResponse::<()>::error(message).into_response()
 }

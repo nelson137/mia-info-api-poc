@@ -10,6 +10,7 @@ use utoipa_axum::routes;
 use crate::{
     error::Result,
     web::{
+        models::JsonResponse,
         service::{BadgeService, MiaDeploymentService},
         state::OpenApiRouter,
         tags,
@@ -18,8 +19,55 @@ use crate::{
 
 pub fn routes() -> OpenApiRouter {
     OpenApiRouter::new()
+        .routes(routes!(container_count))
         .routes(routes!(container_count_badge))
+        .routes(routes!(version))
         .routes(routes!(version_badge))
+}
+
+#[utoipa::path(
+    get,
+    path = "/{namespace}/{service}/containers",
+    tag = tags::MIA_DEPLOYMENT,
+    summary = "get the container count of a deployment",
+    params(
+        ("namespace", Path, description = "The cluster namespace", example = "vcce-dev"),
+        ("service", Path, description = "The service name", example = "memo-api"),
+    ),
+    responses(
+        (
+            status = OK,
+            description = "Container count information.",
+            body = ContainerCountResponse,
+            content_type = mime::JSON.as_ref(),
+            example = r#"{ "namespace": "vcce-dev", "service": "memo-api", "containers": 3 }"#,
+        ),
+        (status = INTERNAL_SERVER_ERROR, description = "Error."),
+    ),
+)]
+pub async fn container_count(
+    State(deployment_service): State<Arc<dyn MiaDeploymentService>>,
+    Path((namespace, service_name)): Path<(String, String)>,
+) -> Result<impl IntoResponse> {
+    let count = deployment_service.get_container_count(&namespace, &service_name)?;
+    Ok(ContainerCountResponse {
+        namespace,
+        service: service_name,
+        containers: count,
+    })
+}
+
+#[derive(utoipa::ToSchema, serde::Serialize)]
+struct ContainerCountResponse {
+    namespace: String,
+    service: String,
+    containers: u32,
+}
+
+impl IntoResponse for ContainerCountResponse {
+    fn into_response(self) -> Response {
+        JsonResponse::new(vec![self]).into_response()
+    }
 }
 
 #[utoipa::path(
@@ -34,7 +82,7 @@ pub fn routes() -> OpenApiRouter {
     responses(
         (
             status = OK,
-            description = "A deployment version badge PNG.",
+            description = "A deployment container count badge PNG.",
             body = PngResponse,
             content_type = mime::IMAGE_PNG.as_ref(),
             example = "<binary image data>",
@@ -50,6 +98,51 @@ pub async fn container_count_badge(
     let count = deployment_service.get_container_count(&namespace, &service_name)?;
     let image = badge_service.generate_count_badge(count)?;
     Ok(PngResponse(image))
+}
+
+#[utoipa::path(
+    get,
+    path = "/{namespace}/{service}/version",
+    tag = tags::MIA_DEPLOYMENT,
+    summary = "get the deployment version",
+    params(
+        ("namespace", Path, description = "The cluster namespace", example = "vcce-dev"),
+        ("service", Path, description = "The service name", example = "memo-api"),
+    ),
+    responses(
+        (
+            status = OK,
+            description = "Deployment version information.",
+            body = DeploymentVersionResponse,
+            content_type = mime::JSON.as_ref(),
+            example = r#"{ "namespace": "vcce-dev", "service": "memo-api", "version": "1.2.3" }"#,
+        ),
+        (status = INTERNAL_SERVER_ERROR, description = "Error."),
+    ),
+)]
+pub async fn version(
+    State(deployment_service): State<Arc<dyn MiaDeploymentService>>,
+    Path((namespace, service_name)): Path<(String, String)>,
+) -> Result<impl IntoResponse> {
+    let version = deployment_service.get_version(&namespace, &service_name);
+    Ok(DeploymentVersionResponse {
+        namespace,
+        service: service_name,
+        version,
+    })
+}
+
+#[derive(utoipa::ToSchema, serde::Serialize)]
+struct DeploymentVersionResponse {
+    namespace: String,
+    service: String,
+    version: String,
+}
+
+impl IntoResponse for DeploymentVersionResponse {
+    fn into_response(self) -> Response {
+        JsonResponse::new(vec![self]).into_response()
+    }
 }
 
 #[utoipa::path(
