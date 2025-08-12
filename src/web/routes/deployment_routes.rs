@@ -53,7 +53,10 @@ pub async fn get_deployment_container_count(
     State(deployment_service): State<Arc<dyn MiaDeploymentService>>,
     Path((namespace, service_name)): Path<(String, String)>,
 ) -> Result<impl IntoResponse> {
+    tracing::info!(namespace, service_name, "get deployment container count");
+
     let count = deployment_service.get_container_count(&namespace, &service_name)?;
+
     Ok(DeploymentCountResponse {
         namespace,
         service: service_name,
@@ -87,6 +90,12 @@ pub async fn get_deployment_container_count_badge(
     Path((namespace, service_name)): Path<(String, String)>,
     Query(query): Query<DeploymentCountBadgeQuery>,
 ) -> Result<impl IntoResponse> {
+    tracing::info!(
+        namespace,
+        service_name,
+        "get deployment container count badge"
+    );
+
     let bg = query.bg.as_deref().map(parse_hex_string).transpose()?;
     let fg = query.fg.as_deref().map(parse_hex_string).transpose()?;
 
@@ -120,7 +129,10 @@ pub async fn get_deployment_version(
     State(deployment_service): State<Arc<dyn MiaDeploymentService>>,
     Path((namespace, service_name)): Path<(String, String)>,
 ) -> Result<impl IntoResponse> {
+    tracing::info!(namespace, service_name, "get deployment version");
+
     let version = deployment_service.get_version(&namespace, &service_name);
+
     Ok(DeploymentVersionResponse {
         namespace,
         service: service_name,
@@ -154,6 +166,8 @@ pub async fn get_deployment_version_badge(
     Path((namespace, service_name)): Path<(String, String)>,
     Query(query): Query<DeploymentVersionBadgeQuery>,
 ) -> Result<impl IntoResponse> {
+    tracing::info!(namespace, service_name, "get deployment version badge");
+
     let bg = query.bg.as_deref().map(parse_hex_string).transpose()?;
     let fg = query.fg.as_deref().map(parse_hex_string).transpose()?;
 
