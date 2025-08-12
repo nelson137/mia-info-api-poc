@@ -2,6 +2,7 @@ use anyhow::{Context, Result};
 use axum_prometheus::metrics;
 use tracing_subscriber::layer::SubscriberExt;
 
+mod error;
 mod settings;
 #[cfg(test)]
 mod test_utils;
@@ -26,7 +27,8 @@ async fn main() -> Result<()> {
 
     #[cfg(feature = "loki")]
     let subscriber = subscriber.with({
-        let url = url::Url::parse(&settings.loki_url).context("failed to parse loki url")?;
+        let url = url::Url::parse(&settings.loki_url)
+            .with_context(|| format!("failed to parse loki url: {}", settings.loki_url))?;
         let (layer, task) = tracing_loki::builder()
             .extra_field("service_name", env!("CARGO_PKG_NAME"))?
             .extra_field("environment", &settings.environment)?

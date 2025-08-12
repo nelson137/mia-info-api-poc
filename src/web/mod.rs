@@ -7,6 +7,7 @@ use utoipa_swagger_ui::SwaggerUi;
 
 use crate::web::state::AppState;
 
+pub mod models;
 mod routes;
 mod service;
 mod state;

@@ -1,7 +1,6 @@
-use anyhow::Result;
 use mia_info_poc_macros::substate;
 
-use crate::web::state::AppState;
+use crate::{error::Result, web::state::AppState};
 
 use super::Service;
 

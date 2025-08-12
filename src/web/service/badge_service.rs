@@ -1,11 +1,13 @@
 use std::{io::Cursor, sync::Arc};
 
 use ab_glyph::FontRef;
-use anyhow::Result;
 use imageproc::{drawing, image};
 use mia_info_poc_macros::substate;
 
-use crate::web::state::AppState;
+use crate::{
+    error::{AppError, Result},
+    web::state::AppState,
+};
 
 use super::Service;
 
@@ -20,6 +22,7 @@ pub trait BadgeService: Service {
     fn generate_version_badge(&self, version: &str) -> Result<Vec<u8>>;
 }
 
+static FONT_NAME: &str = "DejaVuSans (embedded)";
 static FONT_BYTES: &[u8] = include_bytes!("../../../examples/DejaVuSans.ttf");
 
 const FONT_SCALE: f32 = 128.0;
@@ -32,7 +35,9 @@ pub struct ImageProcBadgeService {
 
 impl BadgeService for ImageProcBadgeService {
     fn new() -> Result<Self> {
-        let font = Arc::new(FontRef::try_from_slice(FONT_BYTES)?);
+        let font_ref = FontRef::try_from_slice(FONT_BYTES)
+            .map_err(|_| AppError::InvalidFont(FONT_NAME.into()))?;
+        let font = Arc::new(font_ref);
         Ok(Self { font })
     }
 

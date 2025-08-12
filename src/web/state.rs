@@ -1,10 +1,6 @@
 use std::sync::Arc;
 
-use anyhow::Result;
-
-use crate::web::service::{
-    BadgeService, ImageProcBadgeService, K8DeploymentService, MiaDeploymentService,
-};
+use crate::{error::Result, web::service::*};
 
 pub type OpenApiRouter = utoipa_axum::router::OpenApiRouter<AppState>;
 

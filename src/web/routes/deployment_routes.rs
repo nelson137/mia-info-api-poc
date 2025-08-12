@@ -2,15 +2,18 @@ use std::sync::Arc;
 
 use axum::{
     extract::{Path, State},
-    http::{HeaderValue, StatusCode, header},
+    http::{HeaderValue, header},
     response::{IntoResponse, Response},
 };
 use utoipa_axum::routes;
 
-use crate::web::{
-    service::{BadgeService, MiaDeploymentService},
-    state::OpenApiRouter,
-    tags,
+use crate::{
+    error::Result,
+    web::{
+        service::{BadgeService, MiaDeploymentService},
+        state::OpenApiRouter,
+        tags,
+    },
 };
 
 pub fn routes() -> OpenApiRouter {
@@ -43,19 +46,10 @@ pub async fn container_count_badge(
     State(deployment_service): State<Arc<dyn MiaDeploymentService>>,
     State(badge_service): State<Arc<dyn BadgeService>>,
     Path((namespace, service_name)): Path<(String, String)>,
-) -> Result<impl IntoResponse, StatusCode> {
-    let count = deployment_service
-        .get_container_count(&namespace, &service_name)
-        .expect("get container count"); // TODO: handle error
-
-    match badge_service.generate_count_badge(count) {
-        Ok(image) => Ok(PngResponse(image)),
-        Err(err) => {
-            // eprintln!("Error generating badge for version {version}");
-            eprintln!("{err}");
-            Err(StatusCode::INTERNAL_SERVER_ERROR)
-        }
-    }
+) -> Result<impl IntoResponse> {
+    let count = deployment_service.get_container_count(&namespace, &service_name)?;
+    let image = badge_service.generate_count_badge(count)?;
+    Ok(PngResponse(image))
 }
 
 #[utoipa::path(
@@ -82,17 +76,10 @@ pub async fn version_badge(
     State(deployment_service): State<Arc<dyn MiaDeploymentService>>,
     State(badge_service): State<Arc<dyn BadgeService>>,
     Path((namespace, service_name)): Path<(String, String)>,
-) -> Result<impl IntoResponse, StatusCode> {
+) -> Result<impl IntoResponse> {
     let version = deployment_service.get_version(&namespace, &service_name);
-
-    match badge_service.generate_version_badge(&version) {
-        Ok(image) => Ok(PngResponse(image)),
-        Err(err) => {
-            eprintln!("Error generating badge for version {version}");
-            eprintln!("{err}");
-            Err(StatusCode::INTERNAL_SERVER_ERROR)
-        }
-    }
+    let image = badge_service.generate_version_badge(&version)?;
+    Ok(PngResponse(image))
 }
 
 #[derive(utoipa::ToSchema)]
