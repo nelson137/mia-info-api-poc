@@ -11,7 +11,10 @@ use crate::{
     error::Result,
     utils::parse_hex_string,
     web::{
-        models::JsonResponse,
+        models::{
+            ContainerCountResponse, ContainersBadgeQuery, DeploymentVersionResponse,
+            VersionBadgeQuery,
+        },
         service::{BadgeService, MiaDeploymentService},
         state::OpenApiRouter,
         tags,
@@ -56,26 +59,6 @@ pub async fn container_count(
         service: service_name,
         containers: count,
     })
-}
-
-#[derive(utoipa::ToSchema, serde::Serialize)]
-struct ContainerCountResponse {
-    namespace: String,
-    service: String,
-    containers: u32,
-}
-
-impl IntoResponse for ContainerCountResponse {
-    fn into_response(self) -> Response {
-        JsonResponse::new(vec![self]).into_response()
-    }
-}
-
-/// Query parameters for the [`container_count_badge`] endpoint.
-#[derive(Clone, Debug, Default, serde::Deserialize)]
-pub struct ContainersBadgeQuery {
-    bg: Option<String>,
-    fg: Option<String>,
 }
 
 #[utoipa::path(
@@ -143,26 +126,6 @@ pub async fn version(
         service: service_name,
         version,
     })
-}
-
-#[derive(utoipa::ToSchema, serde::Serialize)]
-struct DeploymentVersionResponse {
-    namespace: String,
-    service: String,
-    version: String,
-}
-
-impl IntoResponse for DeploymentVersionResponse {
-    fn into_response(self) -> Response {
-        JsonResponse::new(vec![self]).into_response()
-    }
-}
-
-/// Query parameters for the [`version_badge`] endpoint.
-#[derive(Clone, Debug, Default, serde::Deserialize)]
-pub struct VersionBadgeQuery {
-    bg: Option<String>,
-    fg: Option<String>,
 }
 
 #[utoipa::path(
