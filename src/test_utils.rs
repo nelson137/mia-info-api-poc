@@ -6,7 +6,7 @@ pub fn rand_string() -> String {
 
 pub fn rand_string_len(len: usize) -> String {
     rand::random_iter::<char>()
-        .filter(|c| c.is_ascii_graphic())
+        .filter(|c| c.is_ascii_alphanumeric() || *c == '-' || *c == '_')
         .take(len)
         .collect()
 }
@@ -19,6 +19,7 @@ pub fn rand_vec_u8() -> Vec<u8> {
 
 pub trait ReadResponseBody {
     async fn read_response_as_bytes(self) -> Vec<u8>;
+    async fn read_response_as_string(self) -> String;
 }
 
 impl<T: IntoResponse> ReadResponseBody for T {
@@ -31,5 +32,10 @@ impl<T: IntoResponse> ReadResponseBody for T {
                 .collect::<Vec<_>>()
         }
         inner(self.into_response()).await
+    }
+
+    async fn read_response_as_string(self) -> String {
+        let bytes = self.read_response_as_bytes().await;
+        String::from_utf8_lossy(&bytes).into_owned()
     }
 }

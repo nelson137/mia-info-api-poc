@@ -188,6 +188,95 @@ mod tests {
     use super::*;
 
     #[tokio::test]
+    async fn test_containers() {
+        let namespace = rand_string();
+        let service_name = rand_string();
+        let count = rand::random();
+
+        let expected_response = format!(
+            r#"{{"data":{{"items":[{{"namespace":"{namespace}","service":"{service_name}","containers":{count}}}]}}}}"#
+        );
+
+        let mut deployment_svc = MockMiaDeploymentService::new();
+        deployment_svc
+            .expect_get_container_count()
+            .with(pred::always(), pred::always())
+            .returning(move |_, _| Ok(count));
+
+        let actual_response =
+            get_deployment_container_count(deployment_svc.into(), Path((namespace, service_name)))
+                .await
+                .read_response_as_string()
+                .await;
+
+        assert_eq!(expected_response, actual_response);
+    }
+
+    #[tokio::test]
+    async fn test_containers_badge() {
+        let namespace = rand_string();
+        let service_name = rand_string();
+        let count = rand::random();
+
+        let mut deployment_svc = MockMiaDeploymentService::new();
+        deployment_svc
+            .expect_get_container_count()
+            .with(pred::always(), pred::always())
+            .returning(move |_, _| Ok(count));
+
+        let gen_badge_bytes = rand_vec_u8();
+        let expected_badge = gen_badge_bytes.clone();
+        let badge_service_ctx = MockBadgeService::new_context();
+        badge_service_ctx.expect().returning(move || {
+            let mut svc = MockBadgeService::default();
+            let gen_badge_bytes = gen_badge_bytes.clone();
+            svc.expect_generate_count_badge()
+                .with(pred::eq(count), pred::always(), pred::always())
+                .return_once(move |_, _, _| Ok(gen_badge_bytes));
+            Ok(svc)
+        });
+        let badge_svc = MockBadgeService::new().unwrap();
+
+        let query = DeploymentCountBadgeQuery::default();
+
+        let actual_badge = get_deployment_container_count_badge(
+            deployment_svc.into(),
+            badge_svc.into(),
+            Path((namespace, service_name)),
+            Query(query),
+        )
+        .await
+        .read_response_as_bytes()
+        .await;
+
+        assert_eq!(expected_badge, actual_badge);
+    }
+    #[tokio::test]
+    async fn test_version() {
+        let namespace = rand_string();
+        let service_name = rand_string();
+        let version = "7.16.1";
+
+        let expected_response = format!(
+            r#"{{"data":{{"items":[{{"namespace":"{namespace}","service":"{service_name}","version":"{version}"}}]}}}}"#
+        );
+
+        let mut deployment_svc = MockMiaDeploymentService::new();
+        deployment_svc
+            .expect_get_version()
+            .with(pred::always(), pred::always())
+            .return_const(version);
+
+        let actual_response =
+            get_deployment_version(deployment_svc.into(), Path((namespace, service_name)))
+                .await
+                .read_response_as_string()
+                .await;
+
+        assert_eq!(expected_response, actual_response);
+    }
+
+    #[tokio::test]
     async fn test_version_badge() {
         let namespace = rand_string();
         let service_name = rand_string();
