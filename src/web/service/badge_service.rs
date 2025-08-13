@@ -3,6 +3,7 @@ use std::{io::Cursor, sync::Arc};
 use ab_glyph::FontRef;
 use imageproc::{drawing, image};
 use mia_info_poc_macros::substate;
+use tracing::error;
 
 use crate::{
     error::{AppError, Result},
@@ -68,6 +69,7 @@ impl BadgeService for ImageProcBadgeService {
 
         let count = count.to_string();
         generate_badge(bg, fg, &self.font, FONT_SCALE, TEXT_MARGIN, &count)
+            .inspect_err(|e| error!("failed to generate container count badge: {e}"))
     }
 
     fn generate_version_badge(
@@ -80,6 +82,7 @@ impl BadgeService for ImageProcBadgeService {
         let fg = fg.unwrap_or(BLACK);
 
         generate_badge(bg, fg, &self.font, FONT_SCALE, TEXT_MARGIN, version)
+            .inspect_err(|e| error!("failed to generate version badge: {e}"))
     }
 }
 
