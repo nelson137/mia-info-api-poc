@@ -4,7 +4,9 @@ docker-build:
     docker build --tag=mia-info-poc-app --progress=plain . 2>&1 | tee docker-build.log
 
 dev:
-    APP_ENVIRONMENT=local cargo run
+    APP_ENVIRONMENT=local \
+    RUST_LIB_BACKTRACE=1 \
+    cargo run
 
 get-version bg='ff0000' fg='000000':
     #!/usr/bin/env bash
